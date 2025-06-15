@@ -1,3 +1,5 @@
+# coding: utf-8
+"""Класс FastApiHandler, который обрабатывает запросы API."""
 
 from catboost import CatBoostClassifier
 
@@ -8,21 +10,21 @@ class FastApiHandler:
     def __init__(self):
         """Инициализация переменных класса."""
 
-        # типы параметров запроса для проверки
+        # Типы параметров запроса для проверки
         self.param_types = {
             "user_id": str,
             "model_params": dict
         }
 
-        self.model_path = "../models/catboost_churn_model.bin"
+        self.model_path = "./models/catboost_churn_model.bin"
         self.load_churn_model(model_path=self.model_path)
         
-        # необходимые параметры для предсказаний модели оттока
+        # Необходимые параметры для предсказаний модели оттока
         self.required_model_params = [
-                'gender', 'SeniorCitizen', 'Partner', 'Dependents', 'Type', 'PaperlessBilling', 'PaymentMethod', 
-                'MonthlyCharges', 'TotalCharges', 'MultipleLines', 'InternetService', 'OnlineSecurity', 
-                'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'days', 'services'
-            ]
+            'gender', 'SeniorCitizen', 'Partner', 'Dependents', 'Type', 'PaperlessBilling', 'PaymentMethod', 
+            'MonthlyCharges', 'TotalCharges', 'MultipleLines', 'InternetService', 'OnlineSecurity', 
+            'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies', 'days', 'services'
+        ]
 
     def load_churn_model(self, model_path: str):
         """Загружаем обученную модель оттока.
@@ -42,19 +44,19 @@ class FastApiHandler:
             model_params (dict): Параметры для модели.
 
         Returns:
-            float — вероятность оттока от 0 до 1
+            float - вероятность оттока от 0 до 1
         """
         param_values_list = list(model_params.values())
         return self.model.predict_proba(param_values_list)[1]
         
     def check_required_query_params(self, query_params: dict) -> bool:
-        """Проверяем параметры запроса на наличие обязательного набора.
+        """Проверяем параметры запроса на наличие обязательного набора параметров.
         
         Args:
             query_params (dict): Параметры запроса.
         
         Returns:
-            bool: True — если есть нужные параметры, False — иначе
+                bool: True - если есть нужные параметры, False - иначе
         """
         if "user_id" not in query_params or "model_params" not in query_params:
             return False
@@ -68,12 +70,12 @@ class FastApiHandler:
     
     def check_required_model_params(self, model_params: dict) -> bool:
         """Проверяем параметры пользователя на наличие обязательного набора.
-        
+    
         Args:
             model_params (dict): Параметры пользователя для предсказания.
-        
+    
         Returns:
-            bool: True — если есть нужные параметры, False — иначе
+            bool: True - если есть нужные параметры, False - иначе
         """
         if set(model_params.keys()) == set(self.required_model_params):
             return True
@@ -81,10 +83,10 @@ class FastApiHandler:
     
     def validate_params(self, params: dict) -> bool:
         """Разбираем запрос и проверяем его корректность.
-        
+    
         Args:
             params (dict): Словарь параметров запроса.
-        
+    
         Returns:
             - **dict**: Cловарь со всеми параметрами запроса.
         """
@@ -100,18 +102,18 @@ class FastApiHandler:
             print("Not all model params exist")
             return False
         return True
-        
+		
     def handle(self, params):
-        """Функция для обработки входящих запросов по API. Запрос состоит из параметров.
-        
+        """Функция для обработки запросов API параметров входящего запроса.
+    
         Args:
             params (dict): Словарь параметров запроса.
-        
+    
         Returns:
             - **dict**: Словарь, содержащий результат выполнения запроса.
         """
         try:
-        # валидируем запрос к API
+            # Валидируем запрос к API
             if not self.validate_params(params):
                 print("Error while handling request")
                 response = {"Error": "Problem with parameters"}
@@ -119,7 +121,7 @@ class FastApiHandler:
                 model_params = params["model_params"]
                 user_id = params["user_id"]
                 print(f"Predicting for user_id: {user_id} and model_params:\n{model_params}")
-                # получаем предсказания модели
+                # Получаем предсказания модели
                 probability = self.churn_predict(model_params)
                 response = {
                     "user_id": user_id, 
@@ -130,39 +132,39 @@ class FastApiHandler:
             print(f"Error while handling request: {e}")
             return {"Error": "Problem with request"}
         else:
-            return response 
-        
+            return response
+
 if __name__ == "__main__":
 
-    # создаём тестовый запрос
+    # Создаем тестовый запрос
     test_params = {
-        "user_id": "123",
-              "model_params": {
-              'gender': 1.0,
-              'SeniorCitizen': 0.0,
-              'Partner': 0.0,
-              'Dependents': 0.0,
-              'Type': 0.5501916796819537,
-              'PaperlessBilling': 1.0,
-              'PaymentMethod': 0.2192247621752094,
-              'MonthlyCharges': 50.8,
-              'TotalCharges': 288.05,
-              'MultipleLines': 0.0,
-              'InternetService': 0.3437455629703251,
-              'OnlineSecurity': 0.0,
-              'OnlineBackup': 0.0,
-              'DeviceProtection': 0.0,
-              'TechSupport': 1.0,
-              'StreamingTV': 0.0,
-              'StreamingMovies': 0.0,
-              'days': 245.0,
-              'services': 2.0
-          }
+	    "user_id": "123",
+        "model_params": {
+            'gender': 1.0,
+            'SeniorCitizen': 0.0,
+            'Partner': 0.0,
+            'Dependents': 0.0,
+            'Type': 0.5501916796819537,
+            'PaperlessBilling': 1.0,
+            'PaymentMethod': 0.2192247621752094,
+            'MonthlyCharges': 50.8,
+            'TotalCharges': 288.05,
+            'MultipleLines': 0.0,
+            'InternetService': 0.3437455629703251,
+            'OnlineSecurity': 0.0,
+            'OnlineBackup': 0.0,
+            'DeviceProtection': 0.0,
+            'TechSupport': 1.0,
+            'StreamingTV': 0.0,
+            'StreamingMovies': 0.0,
+            'days': 245.0,
+            'services': 2.0
+        }
     }
 
-    # создаём обработчик запросов для API
+    # Создаем обработчик запросов для API
     handler = FastApiHandler()
 
-    # делаем тестовый запрос
+    # Делаем тестовый запрос
     response = handler.handle(test_params)
-    print(f"Response: {response}") 
+    print(f"Response: {response}")
